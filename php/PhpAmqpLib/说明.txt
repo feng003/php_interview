@@ -1,0 +1,74 @@
+1、PhpAmqpLib放到vendor目录下
+2、
+AmqpconsumeService.php放在消息消费者的服务器上（一般放在商城）
+RpcserverService.php 放在接收rpc消息的服务器上（一般放在结算）
+
+在根目录下service.php中增加对以上服务的调用
+如：require_once __DIR__ . '/Service/RpcserverService.php';
+
+3、发送消息 
+结算到商城 代码使用：
+    define('AMQP_HOST', '192.168.177.154');
+    define('AMQP_PORT', 5672);
+    define('AMQP_USER', 'rabbit');
+    define('AMQP_PASS', '123456');
+    define('AMQP_VHOST', '/');
+    //If this is enabled you can see AMQP output on the CLI
+    define('AMQP_DEBUG', false);
+    
+    Vendor('PhpAmqpLib.Autoloader.autoload');//自动加载
+    /*传给对方的消息主体内容
+    ** Service : 当前系统服务名称 
+    ** Method : 当前系统调用的方法
+    ** Args : 当前系统方法中的参数
+    */
+    $paraData = array('Service'=>'SaleRegService',
+                      'Method'=>'run',
+                      'Args'=>array('sale'=>array(),'data'=>$_POST,'xname'=>'后台注册'));
+    $messageBody = $paraData;
+    //消息内容编码之后再发送
+    $messageBody = base64_encode(json_encode($messageBody));
+    $api_msg = new \Vendor\PhpAmqpLib\Message\MsgPublisher();
+    //发送消息
+    $response = $api_msg->publisher($messageBody);
+
+    $this->success('注册成功！');
+
+商城到结算 代码使用：
+
+	define('AMQP_HOST', '192.168.177.154');
+	define('AMQP_PORT', 5672);
+	define('AMQP_USER', 'rabbit');
+	define('AMQP_PASS', '123456');
+	define('AMQP_VHOST', '/');
+	//If this is enabled you can see AMQP output on the CLI
+	define('AMQP_DEBUG', false);
+
+	Vendor('PhpAmqpLib.Autoloader.autoload');//自动加载
+	/*传给对方的消息主体内容
+	** Service : 当前系统服务名称 
+	** Method : 当前系统调用的方法
+	** Args : 当前系统方法中的参数
+	*/
+	$paraData = array('Service'=>'SaleRegService',
+	                  'Method'=>'run',
+	                  'Args'=>array('sale'=>array(),'data'=>$_POST,'xname'=>'后台注册'));
+	$messageBody = $paraData;
+	/*
+	** 消息主体另外带上本系统本次功能实现需要的参数，
+	** 同上述$paradata一起传到对方，由对方另起消息队列将这部分消息内容发送回来
+	** 同样的这部分内容中也要包含 Service Method Args
+	*/
+	$messageBody['oppositeArg']=array('Service'=>'SaleRegService',
+	                  'Method'=>'run',
+	                  'Args'=>array('sale'=>array(),'data'=>$_POST,'xname'=>'后台注册'));
+	//消息内容编码之后再发送
+	$messageBody = base64_encode(json_encode($messageBody));
+	$api_rpc = new \Vendor\PhpAmqpLib\Message\RpcClient();
+	//发送消息
+	$response = $api_rpc->call($messageBody);
+	if($response == '1'){
+	    $this->success('注册成功！');
+	}else{
+	    $this->error($response);
+	}

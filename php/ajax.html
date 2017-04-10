@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+<form action="#" method="post">
+    <div>
+        <label for="title">标题</label>
+        <input type="text" id="title" name="title"  />
+    </div>
+    <div>
+        <label for="tele">Tele</label>
+        <input type="text" id="tele" name="tele"  />
+    </div>
+    <div>
+        <label>性别</label>
+        <label for="male">male</label>
+        <input type="radio" name="sex" id="male" value="1"  />
+        <label for="female">female</label>
+        <input type="radio" name="sex" id="female" value="2" />
+    </div>
+    <div>
+        <label>爱好</label>
+        <label for="ft">football</label>
+        <input type="checkbox" id="ft" name="like[]" value="1" />
+        <label for="bk">basketball</label>
+        <input type="checkbox" id="bk" name="like[]" value="2" />
+        <label for="st">sport</label>
+        <input type="checkbox" id="st" name="like[]" value="3" />
+    </div>
+    <div>
+        <textarea rows="5" cols="20" id="content" name="content"></textarea>
+    </div>
+    <div>
+        <input type="button" id="submit" value="submit">
+        <input type="reset" value="reset">
+    </div>
+</form>
+<!--<script src="./js/jquery.min.js"></script>-->
+<!--<script src="./js/ajax.js"></script>-->
+<script src="./js/xmlHttpRequest.js"></script>
+</body>
+</html>
